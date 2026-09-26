@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Match'Paws — trouvez le bon pet-sitter pour votre compagnon." />
+  <title>Match’Paws — Le bon humain pour chaque patte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Accueil Match'Paws">
+      <span class="brand-mark">🐾</span>
+      <span>Match’Paws</span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="#comment-ca-marche">Comment ça marche</a>
+      <a href="#match">Trouver un match</a>
+      <button class="btn btn-small btn-outline" id="resetBtn" type="button">Réinitialiser</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">🐶 Pet-sitting intelligent & rassurant</span>
+        <h1>Le bon humain pour <span>chaque patte.</span></h1>
+        <p>
+          Crée le profil de ton animal, précise ton besoin et découvre un intervenant
+          compatible avec son caractère, ses habitudes et ton service recherché.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#match">Créer le profil de mon animal</a>
+          <a class="btn btn-ghost" href="#comment-ca-marche">Voir comment ça marche</a>
+        </div>
+        <div class="trust-row" aria-label="Points forts">
+          <div><strong>3 étapes</strong><span>pour un match</span></div>
+          <div><strong>100% démo</strong><span>sans compte</span></div>
+          <div><strong>Local</strong><span>données sur l’appareil</span></div>
+        </div>
+      </div>
+      <div class="hero-card" aria-hidden="true">
+        <div class="pet-orbit orbit-one">🐶</div>
+        <div class="pet-orbit orbit-two">🐱</div>
+        <div class="pet-orbit orbit-three">🐰</div>
+        <div class="match-badge">
+          <span class="match-score">96%</span>
+          <span>match compatible</span>
+        </div>
+        <div class="floating-card floating-top">⭐ 4,9/5</div>
+        <div class="floating-card floating-bottom">✓ Pourquoi ce match ?</div>
+      </div>
+    </section>
+
+    <section class="how" id="comment-ca-marche">
+      <div class="section-heading">
+        <span class="eyebrow">Simple et transparent</span>
+        <h2>Comment ça marche ?</h2>
+      </div>
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-number">01</span>
+          <div class="step-icon">📝</div>
+          <h3>Profil animal</h3>
+          <p>Nom, espèce, âge, tempérament et besoins particuliers.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">02</span>
+          <div class="step-icon">📍</div>
+          <h3>Ton besoin</h3>
+          <p>Service, date et zone : on garde uniquement l’essentiel.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">03</span>
+          <div class="step-icon">💚</div>
+          <h3>Ton match</h3>
+          <p>Découvre un profil et comprends pourquoi il correspond.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="matcher" id="match">
+      <div class="section-heading left">
+        <span class="eyebrow">Prototype V1</span>
+        <h2>Trouve ton match</h2>
+        <p>Tout se passe dans ton navigateur. Aucune donnée n’est envoyée à un serveur.</p>
+      </div>
+
+      <div class="app-shell">
+        <aside class="progress-panel">
+          <div class="progress-item active" data-progress="1">
+            <span>1</span><div><strong>Mon animal</strong><small>Profil & caractère</small></div>
+          </div>
+          <div class="progress-item" data-progress="2">
+            <span>2</span><div><strong>Mon besoin</strong><small>Service, date, zone</small></div>
+          </div>
+          <div class="progress-item" data-progress="3">
+            <span>3</span><div><strong>Mon match</strong><small>Profil recommandé</small></div>
+          </div>
+          <div class="saved-note" id="savedNote">💾 Tes réponses sont enregistrées localement.</div>
+        </aside>
+
+        <section class="form-panel">
+          <form id="matchForm" novalidate>
+            <div class="form-step active" data-step="1">
+              <span class="form-kicker">Étape 1 sur 3</span>
+              <h3>Parle-nous de ton compagnon</h3>
+              <p class="form-intro">Quelques infos suffisent pour personnaliser le match.</p>
+
+              <div class="field-grid two">
+                <label>Nom de l’animal
+                  <input type="text" id="petName" name="petName" placeholder="Ex. Nala" required maxlength="30" />
+                </label>
+                <label>Âge
+                  <input type="number" id="petAge" name="petAge" placeholder="Ex. 4" min="0" max="30" required />
+                </label>
+              </div>
+
+              <fieldset>
+                <legend>Espèce</legend>
+                <div class="choice-grid species-grid">
+                  <label class="choice-card"><input type="radio" name="species" value="chien" required /><span>🐶</span><strong>Chien</strong></label>
+                  <label class="choice-card"><input type="radio" name="species" value="chat" /><span>🐱</span><strong>Chat</strong></label>
+                  <label class="choice-card"><input type="radio" name="species" value="autre" /><span>🐰</span><strong>Autre</strong></label>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Tempérament</legend>
+                <div class="pill-grid">
+                  <label class="pill"><input type="radio" name="temperament" value="calme" required />Calme</label>
+                  <label class="pill"><input type="radio" name="temperament" value="joueur" />Joueur</label>
+                  <label class="pill"><input type="radio" name="temperament" value="timide" />Timide</label>
+                  <label class="pill"><input type="radio" name="temperament" value="énergique" />Énergique</label>
+                </div>
+              </fieldset>
+
+              <label>Besoins particuliers <span class="optional">facultatif</span>
+                <textarea id="needs" name="needs" rows="3" placeholder="Traitement, peur des autres animaux, habitudes importantes…" maxlength="220"></textarea>
+              </label>
+
+              <div class="form-actions end">
+                <button class="btn btn-primary" type="button" data-next="2">Continuer →</button>
+              </div>
+            </div>
+
+            <div class="form-step" data-step="2">
+              <span class="form-kicker">Étape 2 sur 3</span>
+              <h3>De quoi as-tu besoin ?</h3>
+              <p class="form-intro">Choisis le service, la date et ta zone.</p>
+
+              <fieldset>
+                <legend>Service</legend>
+                <div class="choice-grid service-grid">
+                  <label class="service-card"><input type="radio" name="service" value="promenade" required /><span>🦮</span><div><strong>Promenade</strong><small>30 à 60 min</small></div></label>
+                  <label class="service-card"><input type="radio" name="service" value="visite" /><span>🏡</span><div><strong>Visite à domicile</strong><small>Repas & présence</small></div></label>
+                  <label class="service-card"><input type="radio" name="service" value="garde" /><span>🌙</span><div><strong>Garde</strong><small>Plusieurs heures</small></div></label>
+                </div>
+              </fieldset>
+
+              <div class="field-grid two">
+                <label>Date souhaitée
+                  <input type="date" id="date" name="date" required />
+                </label>
+                <label>Ville ou code postal
+                  <input type="text" id="zone" name="zone" placeholder="Ex. Alfortville" required maxlength="60" />
+                </label>
+              </div>
+
+              <div class="form-actions split">
+                <button class="btn btn-ghost" type="button" data-back="1">← Retour</button>
+                <button class="btn btn-primary" type="button" id="findMatchBtn">Voir mon match ✨</button>
+              </div>
+            </div>
+
+            <div class="form-step" data-step="3">
+              <span class="form-kicker">Étape 3 sur 3</span>
+              <div class="result-headline">
+                <div>
+                  <h3>On a trouvé un super match !</h3>
+                  <p class="form-intro" id="resultIntro">Un profil compatible avec ton besoin.</p>
+                </div>
+                <div class="score-ring"><strong id="scoreValue">96%</strong><span>compatibilité</span></div>
+              </div>
+
+              <article class="sitter-profile">
+                <div class="sitter-avatar" id="sitterAvatar">👩🏻</div>
+                <div class="sitter-main">
+                  <div class="sitter-title-row"><div><h4 id="sitterName">Léa Martin</h4><span class="verified">✓ Profil vérifié — démo</span></div><span class="rating">★ <b id="sitterRating">4,9</b></span></div>
+                  <p id="sitterBio">Pet-sitter douce et attentive, habituée aux animaux sensibles et aux promenades urbaines.</p>
+                  <div class="tag-row" id="sitterTags"></div>
+                </div>
+              </article>
+
+              <div class="why-card">
+                <h4>💡 Pourquoi ce match ?</h4>
+                <ul id="whyList"></ul>
+              </div>
+
+              <div class="profile-details">
+                <div><span>📍</span><div><small>Zone</small><strong id="detailZone">—</strong></div></div>
+                <div><span>🗓️</span><div><small>Disponibilité</small><strong id="detailDate">—</strong></div></div>
+                <div><span>💶</span><div><small>Tarif indicatif</small><strong id="detailPrice">—</strong></div></div>
+              </div>
+
+              <div class="form-actions split wrap">
+                <button class="btn btn-ghost" type="button" data-back="2">← Modifier</button>
+                <button class="btn btn-primary" type="button" id="bookingBtn">Envoyer une demande</button>
+              </div>
+              <div class="booking-message" id="bookingMessage" role="status" aria-live="polite"></div>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="brand footer-brand"><span class="brand-mark">🐾</span><span>Match’Paws</span></div>
+    <p>Prototype V1 — démonstration front-end sans paiement ni collecte serveur.</p>
+    <p class="footer-note">Projet éducatif. Pour un lancement réel : sécurité, vérification d’identité, données personnelles, assurance, contrats et paiements doivent être traités avec des adultes et des professionnels compétents.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
