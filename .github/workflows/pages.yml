@@ -1,4 +1,4 @@
-name: Deploy MatchPaws to GitHub Pages
+name: Publish MatchPaws V3
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -24,15 +24,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Extract V3 package
+        run: |
+          rm -rf public
+          mkdir public
+          tar -xzf site-v3.tar.gz -C public
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
 
-      - name: Upload site
+      - name: Upload V3 site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '.'
+          path: public
+
+      - name: Promote V3 sources to repository root
+        run: |
+          rsync -a --delete --exclude '.git' --exclude '.github' --exclude 'public' --exclude 'site-v3.tar.gz' public/ ./
+          rm -rf public
+          rm -f site-v3.tar.gz
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish MatchPaws V3 sources [skip ci]"
+            git push
+          fi
 
       - name: Deploy to GitHub Pages
         id: deployment
