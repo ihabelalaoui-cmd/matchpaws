@@ -24,11 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Extract V3 package
+      - name: Rebuild and validate V3 package
         run: |
+          cat v3.part-01 v3.part-02 v3.part-03 v3.part-04 v3.part-05 | base64 -d > site-v3.tar.gz
+          gzip -t site-v3.tar.gz
           rm -rf public
           mkdir public
           tar -xzf site-v3.tar.gz -C public
+          test -f public/index.html
+          test -f public/style.css
+          test -f public/script.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -40,11 +45,16 @@ jobs:
         with:
           path: public
 
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
       - name: Promote V3 sources to repository root
+        continue-on-error: true
         run: |
-          rsync -a --delete --exclude '.git' --exclude '.github' --exclude 'public' --exclude 'site-v3.tar.gz' public/ ./
+          rsync -a --delete             --exclude '.git'             --exclude '.github'             --exclude 'public'             --exclude 'v3.part-*'             --exclude 'site-v3.tar.gz'             public/ ./
           rm -rf public
-          rm -f site-v3.tar.gz
+          rm -f site-v3.tar.gz v3.part-01 v3.part-02 v3.part-03 v3.part-04 v3.part-05
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
@@ -52,7 +62,3 @@ jobs:
             git commit -m "Publish MatchPaws V3 sources [skip ci]"
             git push
           fi
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
