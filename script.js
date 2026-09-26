@@ -1,218 +1,50 @@
-const STORAGE_KEY = "matchpaws-v1-profile";
 
-const form = document.getElementById("matchForm");
-const steps = [...document.querySelectorAll(".form-step")];
-const progressItems = [...document.querySelectorAll(".progress-item")];
-const bookingMessage = document.getElementById("bookingMessage");
+const $$=(s)=>[...document.querySelectorAll(s)];
+const $=(s)=>document.querySelector(s);
 
-const sitters = [
-  {
-    name: "Léa Martin",
-    avatar: "👩🏻",
-    rating: "4,9",
-    bio: "Pet-sitter douce et attentive, habituée aux animaux sensibles et aux promenades urbaines.",
-    tags: ["Animaux sensibles", "Promenades", "Premiers secours"],
-    services: ["promenade", "visite"],
-    species: ["chien", "chat"],
-    temperaments: ["calme", "timide", "joueur"],
-    prices: { promenade: "18 € / promenade", visite: "20 € / visite", garde: "45 € / garde" }
-  },
-  {
-    name: "Yanis Benali",
-    avatar: "👨🏽",
-    rating: "4,8",
-    bio: "Sportif et patient, idéal pour les chiens dynamiques et les longues sorties en extérieur.",
-    tags: ["Chiens sportifs", "Grande balade", "Week-end"],
-    services: ["promenade", "garde"],
-    species: ["chien", "autre"],
-    temperaments: ["énergique", "joueur"],
-    prices: { promenade: "19 € / promenade", visite: "22 € / visite", garde: "48 € / garde" }
-  },
-  {
-    name: "Camille Robert",
-    avatar: "👩🏼",
-    rating: "5,0",
-    bio: "Calme et organisée, habituée aux chats, petits animaux et routines précises à domicile.",
-    tags: ["Chats", "Petits animaux", "Soins & routine"],
-    services: ["visite", "garde"],
-    species: ["chat", "autre"],
-    temperaments: ["calme", "timide"],
-    prices: { promenade: "17 € / promenade", visite: "21 € / visite", garde: "44 € / garde" }
-  }
-];
+const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.12});
+$$('.reveal').forEach(el=>observer.observe(el));
 
-function showStep(stepNumber) {
-  steps.forEach(step => step.classList.toggle("active", Number(step.dataset.step) === stepNumber));
-  progressItems.forEach(item => item.classList.toggle("active", Number(item.dataset.progress) <= stepNumber));
-  document.getElementById("match").scrollIntoView({ behavior: "smooth", block: "start" });
-}
+const page=location.pathname.split('/').pop()||'index.html';
+$$('[data-nav]').forEach(a=>{if(a.getAttribute('href')===page)a.classList.add('active')});
 
-function value(name) {
-  const element = form.elements[name];
-  if (!element) return "";
-  if (element instanceof RadioNodeList) return element.value;
-  return element.value;
-}
+$$('[data-local-save]').forEach(form=>form.addEventListener('submit',e=>{
+ e.preventDefault();
+ const key=form.dataset.localSave;
+ const data=Object.fromEntries(new FormData(form).entries());
+ localStorage.setItem(key,JSON.stringify(data));
+ const ok=form.querySelector('.success')||form.parentElement.querySelector('.success'); if(ok)ok.classList.add('show');
+ form.reset();
+}));
 
-function validateStep(stepNumber) {
-  const step = document.querySelector(`.form-step[data-step="${stepNumber}"]`);
-  const required = [...step.querySelectorAll("[required]")];
-  let valid = true;
+const homeSearch=$('#homeSearch');
+if(homeSearch){homeSearch.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(homeSearch).entries());localStorage.setItem('matchpaws_search',JSON.stringify(data));location.href='matching.html';});}
 
-  required.forEach(field => {
-    if (field.type === "radio") {
-      const group = [...step.querySelectorAll(`input[name="${field.name}"]`)];
-      const ok = group.some(item => item.checked);
-      group.forEach(item => item.closest("label")?.classList.toggle("invalid", !ok));
-      if (!ok) valid = false;
-    } else {
-      const ok = String(field.value || "").trim() !== "";
-      field.classList.toggle("invalid", !ok);
-      if (!ok) valid = false;
-    }
-  });
+const stepLinks=$$('.step-link'), panes=$$('.step-pane'), fill=$('.progress>div');
+const state={pet:'',temperament:'',service:'',priority:'routine'};
+function openStep(n){stepLinks.forEach(x=>x.classList.toggle('active',x.dataset.step==n));panes.forEach(x=>x.classList.toggle('active',x.dataset.step==n));if(fill)fill.style.width=`${n*25}%`;}
+stepLinks.forEach(x=>x.addEventListener('click',()=>openStep(+x.dataset.step)));
+$$('[data-next]').forEach(x=>x.addEventListener('click',()=>openStep(+x.dataset.next)));
+$$('[data-prev]').forEach(x=>x.addEventListener('click',()=>openStep(+x.dataset.prev)));
+$$('[data-answer]').forEach(x=>x.addEventListener('click',()=>{const g=x.dataset.group;state[g]=x.dataset.answer;x.parentElement.querySelectorAll('.option').forEach(y=>y.classList.remove('selected'));x.classList.add('selected');}));
+const calc=$('#calcMatch');
+if(calc){calc.addEventListener('click',()=>{
+ const out=$('#matchResult'); if(!state.pet||!state.temperament||!state.service){out.innerHTML='<div class="inline-note">Complète les trois premières étapes pour obtenir une recommandation.</div>';return;}
+ const profiles=[
+  {name:'Léa',emoji:'👩🏻‍🦰',score:96,good:'animaux sensibles, routines et visites rassurantes',tags:['Routine','Photos','Approche douce']},
+  {name:'Yanis',emoji:'👨🏽',score:94,good:'chiens actifs, promenades et dépense physique',tags:['Balades','Actif','Week-end']},
+  {name:'Camille',emoji:'👩🏼',score:95,good:'chats, visites à domicile et consignes précises',tags:['Chats','Domicile','Organisation']}
+ ];
+ let p=profiles[0];if(state.temperament==='énergique'||state.temperament==='joueur'||state.service==='promenade')p=profiles[1];if(state.pet==='chat'||state.service==='visite')p=profiles[2];
+ out.innerHTML=`<div class="result"><span class="eyebrow">Compatibilité indicative ${p.score}%</span><h3 style="margin-top:14px">${p.emoji} Profil recommandé : ${p.name}</h3><p class="muted">Particulièrement adapté aux ${p.good}.</p><div class="tag-row">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div><ul><li>Le matching est une démonstration front-end.</li><li>En production, disponibilité, distance, vérifications, avis et préférences enrichiront le score.</li></ul></div>`;
+ localStorage.setItem('matchpaws_quiz_v3',JSON.stringify(state));openStep(4);
+ });}
 
-  if (!valid) {
-    const first = step.querySelector(".invalid");
-    first?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-  return valid;
-}
+const estimator=$('#estimator');
+if(estimator){estimator.addEventListener('input',()=>{
+ const service=$('#estService').value, qty=Number($('#estQty').value||1), output=$('#estimateValue');
+ const prices={walk:19,visit:25,home:49,zen:129}; const labels={walk:'promenade',visit:'visite',home:'garde à domicile',zen:'abonnement'};
+ output.textContent=service==='zen'?`${prices[service]} € / mois`:`≈ ${prices[service]*qty} € pour ${qty} ${labels[service]}${qty>1?'s':''}`;
+ });}
 
-function collectData() {
-  return {
-    petName: value("petName").trim(),
-    petAge: value("petAge"),
-    species: value("species"),
-    temperament: value("temperament"),
-    needs: value("needs").trim(),
-    service: value("service"),
-    date: value("date"),
-    zone: value("zone").trim()
-  };
-}
-
-function saveLocal() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData()));
-}
-
-function restoreLocal() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return;
-  try {
-    const data = JSON.parse(raw);
-    Object.entries(data).forEach(([key, val]) => {
-      if (!val || !form.elements[key]) return;
-      const input = form.elements[key];
-      if (input instanceof RadioNodeList) {
-        [...form.querySelectorAll(`input[name="${key}"]`)].forEach(r => r.checked = r.value === val);
-      } else {
-        input.value = val;
-      }
-    });
-  } catch (_) {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-}
-
-function chooseSitter(data) {
-  let best = null;
-  let bestScore = -1;
-
-  sitters.forEach((sitter, index) => {
-    let score = 78;
-    if (sitter.services.includes(data.service)) score += 8;
-    if (sitter.species.includes(data.species)) score += 5;
-    if (sitter.temperaments.includes(data.temperament)) score += 4;
-    if (data.needs) score += 1;
-    score -= index;
-    if (score > bestScore) {
-      bestScore = score;
-      best = sitter;
-    }
-  });
-
-  return { sitter: best, score: Math.min(99, bestScore) };
-}
-
-function prettyDate(isoDate) {
-  if (!isoDate) return "Date à confirmer";
-  const date = new Date(`${isoDate}T12:00:00`);
-  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(date);
-}
-
-function renderMatch() {
-  const data = collectData();
-  const { sitter, score } = chooseSitter(data);
-
-  document.getElementById("scoreValue").textContent = `${score}%`;
-  document.getElementById("sitterAvatar").textContent = sitter.avatar;
-  document.getElementById("sitterName").textContent = sitter.name;
-  document.getElementById("sitterRating").textContent = sitter.rating;
-  document.getElementById("sitterBio").textContent = sitter.bio;
-  document.getElementById("sitterTags").innerHTML = sitter.tags.map(tag => `<span class="tag">${tag}</span>`).join("");
-  document.getElementById("detailZone").textContent = data.zone;
-  document.getElementById("detailDate").textContent = prettyDate(data.date);
-  document.getElementById("detailPrice").textContent = sitter.prices[data.service];
-  document.getElementById("resultIntro").textContent = `${data.petName || "Ton animal"} a un profil qui correspond particulièrement bien à ${sitter.name}.`;
-
-  const reasons = [
-    `${sitter.name} accepte le service « ${data.service} » demandé.`,
-    `Son expérience correspond bien au profil ${data.temperament} de ${data.petName}.`,
-    `Elle/il intervient sur une zone compatible avec « ${data.zone} » dans cette démonstration.`
-  ];
-  if (data.needs) reasons.push("Tes besoins particuliers sont pris en compte dans l’explication du match.");
-  document.getElementById("whyList").innerHTML = reasons.map(r => `<li>${r}</li>`).join("");
-
-  bookingMessage.classList.remove("show");
-  bookingMessage.textContent = "";
-}
-
-document.querySelectorAll("[data-next]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const current = Number(btn.closest(".form-step").dataset.step);
-    if (!validateStep(current)) return;
-    saveLocal();
-    showStep(Number(btn.dataset.next));
-  });
-});
-
-document.querySelectorAll("[data-back]").forEach(btn => {
-  btn.addEventListener("click", () => showStep(Number(btn.dataset.back)));
-});
-
-document.getElementById("findMatchBtn").addEventListener("click", () => {
-  if (!validateStep(2)) return;
-  saveLocal();
-  renderMatch();
-  showStep(3);
-});
-
-document.getElementById("bookingBtn").addEventListener("click", () => {
-  const data = collectData();
-  bookingMessage.textContent = `✅ Demande simulée envoyée pour ${data.petName}. Dans une vraie version, cette étape nécessiterait un compte, une messagerie et un backend sécurisé.`;
-  bookingMessage.classList.add("show");
-});
-
-document.getElementById("resetBtn").addEventListener("click", () => {
-  localStorage.removeItem(STORAGE_KEY);
-  form.reset();
-  bookingMessage.classList.remove("show");
-  showStep(1);
-});
-
-form.addEventListener("input", event => {
-  const field = event.target;
-  field.classList?.remove("invalid");
-  field.closest("label")?.classList.remove("invalid");
-  saveLocal();
-});
-
-const dateInput = document.getElementById("date");
-const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth() + 1).padStart(2, "0");
-const dd = String(today.getDate()).padStart(2, "0");
-dateInput.min = `${yyyy}-${mm}-${dd}`;
-
-restoreLocal();
+const year=$('#year');if(year)year.textContent=new Date().getFullYear();
